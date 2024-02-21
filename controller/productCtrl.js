@@ -93,11 +93,19 @@ const getQuantityProductCat = asyncHandler(async (req, res) => {
   try {
     const count = await Category.aggregate([
       {
-        $group: {
-          _id: '$_id',
-          title: { $first: '$title' },
-          totalProducts: { $sum: 1 },
-          image: { $push: '$image' }, 
+        $lookup: {
+          from: 'products',
+          localField: 'title',
+          foreignField: 'category',
+          as: 'products',
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          image: '$image',
+          totalProducts: { $size: '$products' },
         },
       },
     ]);
